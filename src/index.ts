@@ -20,11 +20,25 @@ app.use(express.json());
 // Fetch all prompts
 router.get("/", async (req: Request, res: Response) => {
   try {
-    const prompts = await Prompt.find();
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 9;
+    const skip =(page - 1) * limit;
+
+    const prompts = await Prompt.find()
+      .skip(skip)
+      .limit(limit)
+      .sort({createdAt: -1});
+
     const total = await Prompt.countDocuments();
+    const totalPages = Math.ceil(total / limit);
+
+
 
     res.json({
       total,
+      page,
+      limit,
+      totalPages,
       data: prompts,
     });
   } catch (err) {
