@@ -10,7 +10,7 @@ const router = express.Router();
 // Enable CORS
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000", "https://subnet-marketplace.vercel.app",  "https://*.vercel.app"],
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
@@ -32,17 +32,16 @@ router.get("/", async (req: Request, res: Response) => {
   }
 });
 
-// Fetch a single prompt by id
+
+
+
 router.get("/:id", async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
-    
     if (!id) {
       return res.status(400).json({ message: "ID is required" });
     }
-    
-    const prompt = await Prompt.findById( id );
-
+    const prompt = await Prompt.findById( id ).sort();
     if (!prompt) {
       return res.status(404).json({ message: "Prompt not found" });
     }

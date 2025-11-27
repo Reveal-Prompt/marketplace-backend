@@ -18,6 +18,10 @@ async function loadPrompts() {
   await mongoose.connect(MONGO_URI);
   console.log("Connected to MongoDB");
 
+  // -------- CLEAR DATABASE --------
+  await Prompt.deleteMany({});
+  console.log("Cleared Prompt collection");
+
   let count = 0;
 
   const jsonStream = fs
@@ -26,21 +30,32 @@ async function loadPrompts() {
     .pipe(streamArray());
 
   for await (const { value } of jsonStream) {
-    if (count >= 100) {
+    if (count >= 100) { 
       console.log("Reached 100 prompts — stopping import.");
       break;
     }
 
     try {
-      // ✅ Add incremental numeric id
-      const promptWithId = {
+      // Random createdAt within last 4 weeks
+      const daysAgo = Math.floor(Math.random() * 28); // 0 to 27
+      const createdAt = new Date();
+      createdAt.setDate(createdAt.getDate() - daysAgo);
+
+      // Random views between 0–500
+      const views = Math.floor(Math.random() * 501);
+
+      const promptWithExtras = {
         ...value,
-        id: count + 1, // start from 1
+        id: count + 1,
+        views,
+        createdAt,
+        updatedAt: createdAt,
       };
 
-      await Prompt.create(promptWithId);
+      await Prompt.create(promptWithExtras);
       count++;
-      console.log(`Inserted prompt ${count}:`, promptWithId.short_prompt);
+
+      console.log(`Inserted prompt ${count}:`, promptWithExtras.short_prompt, "| views:", views, "| createdAt:", createdAt.toDateString());
     } catch (err) {
       console.error("Error inserting prompt:", err);
     }
