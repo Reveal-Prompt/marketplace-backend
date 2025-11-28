@@ -10,7 +10,7 @@ const router = express.Router();
 // Enable CORS
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://subnet-marketplace.vercel.app",  "https://*.vercel.app"],
+    origin: ["http://localhost:3000", "https://subnet-marketplace.vercel.app",  "https://*.vercel.app", "https://app.revealprompt.com/"],
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
